@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 
 enum TriggerDirection { none, right, left, up, down }
 
+int? currentIndex;
+
 /// A Tinder-Like Widget.
 class TinderSwapCard extends StatefulWidget {
   final CardBuilder _cardBuilder;
@@ -127,15 +129,15 @@ class TinderSwapCard extends StatefulWidget {
 
 class _TinderSwapCardState extends State<TinderSwapCard>
     with TickerProviderStateMixin {
-   late Alignment frontCardAlign;
+  late Alignment frontCardAlign;
 
-   late AnimationController _animationController;
+  late AnimationController _animationController;
 
-   late int _currentFront;
+  late int _currentFront;
 
   static TriggerDirection? _trigger;
 
-  Widget _buildCard(BuildContext context, int realIndex) {
+  Widget _buildCard(BuildContext context, int realIndex, int currentIndex) {
     if (realIndex < 0) {
       return Container();
     }
@@ -207,7 +209,7 @@ class _TinderSwapCardState extends State<TinderSwapCard>
     final cards = <Widget>[];
 
     for (var i = _currentFront; i < _currentFront + widget._stackNum; i++) {
-      cards.add(_buildCard(context, i));
+      cards.add(_buildCard(context, i, i + 1));
     }
 
     cards.add(SizedBox.expand(
@@ -486,6 +488,10 @@ class CardController {
   // ignore: use_setters_to_change_properties
   void addListener(final TriggerListener listener) {
     _listener = listener;
+  }
+
+  int currentIndex() {
+    return 1;
   }
 
   void removeListener() {
