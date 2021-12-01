@@ -245,14 +245,14 @@ class _TinderSwapCardState extends State<TinderSwapCard>
           });
         },
         onPanEnd: (final details) {
-          animateCards(TriggerDirection.none);
+          animateCards(TriggerDirection.none, _currentFront);
         },
       ),
     ));
     return cards;
   }
 
-  void animateCards(TriggerDirection trigger) {
+  void animateCards(TriggerDirection trigger, int index) {
     if (_animationController.isAnimating ||
         _currentFront + widget._stackNum == 0) {
       return;
@@ -263,8 +263,8 @@ class _TinderSwapCardState extends State<TinderSwapCard>
     _animationController.forward();
   }
 
-  void triggerSwap(TriggerDirection trigger) {
-    animateCards(trigger);
+  void triggerSwap(TriggerDirection trigger, int index) {
+    animateCards(trigger, index);
   }
 
   // support for asynchronous data events
@@ -295,9 +295,9 @@ class _TinderSwapCardState extends State<TinderSwapCard>
 
     frontCardAlign = widget._cardAligns[widget._cardAligns.length - 1];
 
-    setState(() {
-      currentIndex = widget._totalNum - widget._stackNum - _currentFront;
-    });
+    // setState(() {
+    //   currentIndex = widget._totalNum - widget._stackNum - _currentFront;
+    // });
 
     _animationController = AnimationController(
       vsync: this,
@@ -311,10 +311,12 @@ class _TinderSwapCardState extends State<TinderSwapCard>
     _animationController.addStatusListener(
       (final status) {
         final index = widget._totalNum - widget._stackNum - _currentFront;
-
         setState(() {
-          currentIndex = widget._totalNum - widget._stackNum - _currentFront;
+          cindex = index;
         });
+        // setState(() {
+        //   currentIndex = widget._totalNum - widget._stackNum - _currentFront;
+        // });
         if (status == AnimationStatus.completed) {
           CardSwipeOrientation orientation;
 
@@ -348,7 +350,7 @@ class _TinderSwapCardState extends State<TinderSwapCard>
 
   @override
   Widget build(BuildContext context) {
-    widget.cardController?.addListener(triggerSwap, currentIndex);
+    widget.cardController?.addListener(triggerSwap);
 
     return Stack(children: _buildCards(context));
   }
@@ -474,7 +476,7 @@ class CardAnimation {
   }
 }
 
-typedef TriggerListener = void Function(TriggerDirection trigger);
+typedef TriggerListener = void Function(TriggerDirection trigger, int idx);
 
 class CardController {
   late TriggerListener? _listener;
@@ -482,25 +484,25 @@ class CardController {
 
   void triggerLeft() {
     if (_listener != null) {
-      _listener!(TriggerDirection.left);
+      _listener!(TriggerDirection.left, index!);
     }
   }
 
   void triggerRight() {
     if (_listener != null) {
-      _listener!(TriggerDirection.right);
+      _listener!(TriggerDirection.right, index!);
     }
   }
 
   void triggerUp() {
     if (_listener != null) {
-      _listener!(TriggerDirection.up);
+      _listener!(TriggerDirection.up, index!);
     }
   }
 
   void triggerDown() {
     if (_listener != null) {
-      _listener!(TriggerDirection.down);
+      _listener!(TriggerDirection.down, index!);
     }
   }
 
@@ -509,8 +511,8 @@ class CardController {
     _listener = listener;
   }
 
-  int index() {
-    return index;
+  int currentIndex() {
+    return index!;
   }
 
   bool isAnimating() {
