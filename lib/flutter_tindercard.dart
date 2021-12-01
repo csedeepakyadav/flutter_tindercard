@@ -13,6 +13,8 @@ bool? animating = false;
 class TinderSwapCard extends StatefulWidget {
   final CardBuilder _cardBuilder;
 
+  final IndexChecker? indexChecker;
+
   final int _totalNum;
 
   final int _stackNum;
@@ -68,6 +70,7 @@ class TinderSwapCard extends StatefulWidget {
     this.cardController,
     this.swipeCompleteCallback,
     this.swipeUpdateCallback,
+    this.indexChecker,
   })  : assert(stackNum > 1),
         assert(swipeEdge > 0),
         assert(swipeEdgeVertical > 0),
@@ -245,14 +248,14 @@ class _TinderSwapCardState extends State<TinderSwapCard>
           });
         },
         onPanEnd: (final details) {
-          animateCards(TriggerDirection.none, _currentFront);
+          animateCards(TriggerDirection.none);
         },
       ),
     ));
     return cards;
   }
 
-  void animateCards(TriggerDirection trigger, int index) {
+  void animateCards(TriggerDirection trigger) {
     if (_animationController.isAnimating ||
         _currentFront + widget._stackNum == 0) {
       return;
@@ -263,8 +266,8 @@ class _TinderSwapCardState extends State<TinderSwapCard>
     _animationController.forward();
   }
 
-  void triggerSwap(TriggerDirection trigger, int index) {
-    animateCards(trigger, index);
+  void triggerSwap(TriggerDirection trigger) {
+    animateCards(trigger);
   }
 
   // support for asynchronous data events
@@ -288,16 +291,16 @@ class _TinderSwapCardState extends State<TinderSwapCard>
     _initState();
   }
 
-  int? cindex;
+  int cindex = 0;
 
   void _initState() {
     _currentFront = widget._totalNum - widget._stackNum;
 
     frontCardAlign = widget._cardAligns[widget._cardAligns.length - 1];
 
-    // setState(() {
-    //   currentIndex = widget._totalNum - widget._stackNum - _currentFront;
-    // });
+    setState(() {
+      currentIndex = widget._totalNum - widget._stackNum - _currentFront;
+    });
 
     _animationController = AnimationController(
       vsync: this,
@@ -311,12 +314,12 @@ class _TinderSwapCardState extends State<TinderSwapCard>
     _animationController.addStatusListener(
       (final status) {
         final index = widget._totalNum - widget._stackNum - _currentFront;
+
         setState(() {
+          currentIndex = widget._totalNum - widget._stackNum - _currentFront;
           cindex = index;
         });
-        // setState(() {
-        //   currentIndex = widget._totalNum - widget._stackNum - _currentFront;
-        // });
+
         if (status == AnimationStatus.completed) {
           CardSwipeOrientation orientation;
 
@@ -351,7 +354,7 @@ class _TinderSwapCardState extends State<TinderSwapCard>
   @override
   Widget build(BuildContext context) {
     widget.cardController?.addListener(triggerSwap);
-
+    widget.indexChecker!.setIndex(cindex);
     return Stack(children: _buildCards(context));
   }
 
@@ -476,33 +479,32 @@ class CardAnimation {
   }
 }
 
-typedef TriggerListener = void Function(TriggerDirection trigger, int idx);
+typedef TriggerListener = void Function(TriggerDirection trigger);
 
 class CardController {
   late TriggerListener? _listener;
-  late int? index;
 
   void triggerLeft() {
     if (_listener != null) {
-      _listener!(TriggerDirection.left, index!);
+      _listener!(TriggerDirection.left);
     }
   }
 
   void triggerRight() {
     if (_listener != null) {
-      _listener!(TriggerDirection.right, index!);
+      _listener!(TriggerDirection.right);
     }
   }
 
   void triggerUp() {
     if (_listener != null) {
-      _listener!(TriggerDirection.up, index!);
+      _listener!(TriggerDirection.up);
     }
   }
 
   void triggerDown() {
     if (_listener != null) {
-      _listener!(TriggerDirection.down, index!);
+      _listener!(TriggerDirection.down);
     }
   }
 
@@ -511,8 +513,8 @@ class CardController {
     _listener = listener;
   }
 
-  int currentIndex() {
-    return index!;
+  int index() {
+    return currentIndex!;
   }
 
   bool isAnimating() {
@@ -522,4 +524,14 @@ class CardController {
   void removeListener() {
     _listener = null;
   }
+}
+
+class IndexChecker {
+  int? idx;
+
+  void setIndex(int index) {
+    idx = index;
+  }
+
+  int getIndex() => idx!;
 }
