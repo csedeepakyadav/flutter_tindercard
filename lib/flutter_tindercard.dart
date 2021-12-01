@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 enum TriggerDirection { none, right, left, up, down }
 
 int? currentIndex;
+bool? animating = false;
 
 /// A Tinder-Like Widget.
 class TinderSwapCard extends StatefulWidget {
@@ -313,14 +314,19 @@ class _TinderSwapCardState extends State<TinderSwapCard>
           CardSwipeOrientation orientation;
 
           if (frontCardAlign.x < -widget._swipeEdge) {
+            animating = true;
             orientation = CardSwipeOrientation.left;
           } else if (frontCardAlign.x > widget._swipeEdge) {
+            animating = true;
             orientation = CardSwipeOrientation.right;
           } else if (frontCardAlign.y < -widget._swipeEdgeVertical) {
+            animating = true;
             orientation = CardSwipeOrientation.up;
           } else if (frontCardAlign.y > widget._swipeEdgeVertical) {
+            animating = true;
             orientation = CardSwipeOrientation.down;
           } else {
+            animating = false;
             frontCardAlign = widget._cardAligns[widget._stackNum - 1];
             orientation = CardSwipeOrientation.recover;
           }
@@ -499,6 +505,10 @@ class CardController {
 
   int index() {
     return currentIndex!;
+  }
+
+  bool isAnimating() {
+    return animating!;
   }
 
   void removeListener() {
