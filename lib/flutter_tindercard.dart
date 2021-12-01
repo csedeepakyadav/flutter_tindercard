@@ -146,9 +146,6 @@ class _TinderSwapCardState extends State<TinderSwapCard>
     }
     final index = realIndex - _currentFront;
 
-    setState(() {
-      currentIndex = realIndex;
-    });
     if (index == widget._stackNum - 1) {
       return Align(
         alignment: _animationController.status == AnimationStatus.forward
@@ -294,6 +291,10 @@ class _TinderSwapCardState extends State<TinderSwapCard>
     _currentFront = widget._totalNum - widget._stackNum;
 
     frontCardAlign = widget._cardAligns[widget._cardAligns.length - 1];
+
+    setState(() {
+      currentIndex = widget._totalNum - widget._stackNum - _currentFront;
+    });
 
     _animationController = AnimationController(
       vsync: this,
