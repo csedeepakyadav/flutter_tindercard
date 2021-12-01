@@ -310,6 +310,8 @@ class _TinderSwapCardState extends State<TinderSwapCard>
       (final status) {
         final index = widget._totalNum - widget._stackNum - _currentFront;
 
+        currentIndex = widget._totalNum - widget._stackNum - _currentFront;
+
         if (status == AnimationStatus.completed) {
           CardSwipeOrientation orientation;
 
