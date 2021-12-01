@@ -288,14 +288,16 @@ class _TinderSwapCardState extends State<TinderSwapCard>
     _initState();
   }
 
+  int? cindex;
+
   void _initState() {
     _currentFront = widget._totalNum - widget._stackNum;
 
     frontCardAlign = widget._cardAligns[widget._cardAligns.length - 1];
 
-    // setState(() {
-    //   currentIndex = widget._totalNum - widget._stackNum - _currentFront;
-    // });
+    setState(() {
+      currentIndex = widget._totalNum - widget._stackNum - _currentFront;
+    });
 
     _animationController = AnimationController(
       vsync: this,
@@ -313,7 +315,6 @@ class _TinderSwapCardState extends State<TinderSwapCard>
         setState(() {
           currentIndex = widget._totalNum - widget._stackNum - _currentFront;
         });
-
         if (status == AnimationStatus.completed) {
           CardSwipeOrientation orientation;
 
@@ -347,7 +348,7 @@ class _TinderSwapCardState extends State<TinderSwapCard>
 
   @override
   Widget build(BuildContext context) {
-    widget.cardController?.addListener(triggerSwap);
+    widget.cardController?.addListener(triggerSwap, currentIndex);
 
     return Stack(children: _buildCards(context));
   }
@@ -477,6 +478,7 @@ typedef TriggerListener = void Function(TriggerDirection trigger);
 
 class CardController {
   late TriggerListener? _listener;
+  late int? index;
 
   void triggerLeft() {
     if (_listener != null) {
@@ -508,7 +510,7 @@ class CardController {
   }
 
   int index() {
-    return currentIndex!;
+    return index;
   }
 
   bool isAnimating() {
