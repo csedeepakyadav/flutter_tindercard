@@ -137,12 +137,18 @@ class _TinderSwapCardState extends State<TinderSwapCard>
 
   static TriggerDirection? _trigger;
 
-  Widget _buildCard(BuildContext context, int realIndex, int currentIndex) {
+  Widget _buildCard(
+    BuildContext context,
+    int realIndex,
+  ) {
     if (realIndex < 0) {
       return Container();
     }
     final index = realIndex - _currentFront;
 
+    setState(() {
+      currentIndex = realIndex;
+    });
     if (index == widget._stackNum - 1) {
       return Align(
         alignment: _animationController.status == AnimationStatus.forward
@@ -209,7 +215,7 @@ class _TinderSwapCardState extends State<TinderSwapCard>
     final cards = <Widget>[];
 
     for (var i = _currentFront; i < _currentFront + widget._stackNum; i++) {
-      cards.add(_buildCard(context, i, i + 1));
+      cards.add(_buildCard(context, i));
     }
 
     cards.add(SizedBox.expand(
@@ -490,8 +496,8 @@ class CardController {
     _listener = listener;
   }
 
-  int currentIndex() {
-    return 1;
+  int index() {
+    return currentIndex!;
   }
 
   void removeListener() {
